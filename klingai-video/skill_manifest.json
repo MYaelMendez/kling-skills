@@ -1,0 +1,132 @@
+{
+  "name": "klingai-video",
+  "version": "1.0.0",
+  "description": "Official Kling AI Skill — text-to-video, image-to-video, Omni, and multi-shot generation",
+  "metadata": {
+    "openclaw": {
+      "emoji": "🎬",
+      "requires": {
+        "bins": ["node"]
+      },
+      "primaryEnv": "KLING_TOKEN",
+      "homepage": "https://app.klingai.com/cn/dev/document-api"
+    }
+  },
+  "modes": ["text2video", "image2video", "omni", "multi-shot"],
+  "parameters": {
+    "prompt": {
+      "type": "string",
+      "description": "Video description. Omni supports <<<element_1>>> <<<image_1>>> <<<video_1>>> placeholders.",
+      "required": false
+    },
+    "image": {
+      "type": "string",
+      "description": "First-frame image path or URL (comma-separated multiple → Omni)",
+      "required": false
+    },
+    "duration": {
+      "type": "number",
+      "description": "Duration 3–15 seconds",
+      "default": 5
+    },
+    "model": {
+      "type": "string",
+      "description": "kling-v3 / kling-v3-omni / kling-video-o1 (script chooses by endpoint)",
+      "default": "by endpoint"
+    },
+    "mode": {
+      "type": "string",
+      "description": "pro (1080P) / std (720P)",
+      "default": "pro",
+      "enum": ["pro", "std"]
+    },
+    "aspect_ratio": {
+      "type": "string",
+      "description": "Output aspect ratio",
+      "default": "16:9",
+      "enum": ["16:9", "9:16", "1:1"]
+    },
+    "sound": {
+      "type": "string",
+      "description": "on / off. Supported by kling-v3 and omni; with --video only off; kling-video-o1 does not support sound.",
+      "default": "off",
+      "enum": ["on", "off"]
+    },
+    "image_tail": {
+      "type": "string",
+      "description": "Last-frame image (image-to-video / Omni)",
+      "required": false
+    },
+    "element_ids": {
+      "type": "string",
+      "description": "Subject IDs, comma-separated (Omni)",
+      "required": false
+    },
+    "video": {
+      "type": "string",
+      "description": "Reference video path or URL (Omni)",
+      "required": false
+    },
+    "multi_shot": {
+      "type": "boolean",
+      "description": "Enable multi-shot mode",
+      "default": false
+    },
+    "shot_type": {
+      "type": "string",
+      "description": "Shot type: customize (required when multi_shot is true)",
+      "required": false
+    },
+    "multi_prompt": {
+      "type": "array",
+      "description": "Shots JSON array (max 6). Each item: { index, prompt, duration }",
+      "required": false
+    },
+    "output_dir": {
+      "type": "string",
+      "description": "Output directory",
+      "default": "./output"
+    },
+    "negative_prompt": {
+      "type": "string",
+      "description": "Negative prompt",
+      "required": false
+    },
+    "task_id": {
+      "type": "string",
+      "description": "Task ID for query/download mode",
+      "required": false
+    },
+    "download": {
+      "type": "boolean",
+      "description": "Download result when querying an existing task",
+      "default": false
+    }
+  },
+  "endpoints": {
+    "text2video": {
+      "path": "/v1/videos/text2video",
+      "model": "kling-v3",
+      "trigger": "text only (no --image, --element_ids, --video, --multi_shot)"
+    },
+    "image2video": {
+      "path": "/v1/videos/image2video",
+      "model": "kling-v3",
+      "trigger": "single first-frame image, no subject/multi-shot/reference video"
+    },
+    "omni": {
+      "path": "/v1/videos/omni-video",
+      "model": "kling-v3-omni or kling-video-o1",
+      "trigger": "multiple images / subject / reference video / multi-shot"
+    }
+  },
+  "prerequisites": {
+    "runtime": "Node.js 18+",
+    "auth": "KLING_TOKEN (recommended) or KLING_API_KEY (format: accessKey|secretKey)"
+  },
+  "links": {
+    "skill_doc": "SKILL.md",
+    "api_reference": "reference.md",
+    "homepage": "https://app.klingai.com/cn/dev/document-api"
+  }
+}

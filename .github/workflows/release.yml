@@ -1,0 +1,53 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build & Publish Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: npm
+          cache-dependency-path: klingai-video/package-lock.json
+
+      - name: Install dependencies
+        working-directory: klingai-video
+        run: npm ci --prefer-offline || npm install
+
+      - name: Lint
+        working-directory: klingai-video
+        run: npm run lint
+
+      - name: Test
+        working-directory: klingai-video
+        run: npm test
+
+      - name: Generate docs
+        working-directory: klingai-video
+        run: npm run build
+
+      - name: Pack npm artifact
+        working-directory: klingai-video
+        run: npm pack
+
+      - name: Upload artifact to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            klingai-video/*.tgz
+            klingai-video/docs/index.md
+            klingai-video/skill_manifest.json
+          generate_release_notes: true

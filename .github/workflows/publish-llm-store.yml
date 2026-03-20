@@ -1,0 +1,76 @@
+name: Publish to llm.store
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (defaults to latest tag)'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Publish manifest to llm.store
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check secrets
+        id: check_secrets
+        run: |
+          if [ -z "${{ secrets.LLM_STORE_URL }}" ] || [ -z "${{ secrets.LLM_STORE_TOKEN }}" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "⚠️  LLM_STORE_URL or LLM_STORE_TOKEN not set — skipping publish."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Resolve version
+        if: steps.check_secrets.outputs.skip == 'false'
+        id: version
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          if [ -z "$VERSION" ]; then
+            VERSION="${GITHUB_REF#refs/tags/}"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: POST manifest to llm.store
+        if: steps.check_secrets.outputs.skip == 'false'
+        env:
+          LLM_STORE_URL: ${{ secrets.LLM_STORE_URL }}
+          LLM_STORE_TOKEN: ${{ secrets.LLM_STORE_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          MANIFEST=$(cat klingai-video/skill_manifest.json)
+          PAYLOAD=$(node -e "
+            const manifest = JSON.parse(process.env.MANIFEST || '{}');
+            console.log(JSON.stringify({
+              manifest,
+              version: process.env.VERSION,
+              repo: 'MYaelMendez/kling-skills'
+            }));
+          " MANIFEST="$MANIFEST")
+
+          HTTP_STATUS=$(curl -s -o /tmp/llm_store_response.json -w "%{http_code}" \
+            -X POST "$LLM_STORE_URL" \
+            -H "Authorization: Bearer $LLM_STORE_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD")
+
+          cat /tmp/llm_store_response.json
+          echo ""
+          echo "HTTP status: $HTTP_STATUS"
+
+          if [ "$HTTP_STATUS" -lt 200 ] || [ "$HTTP_STATUS" -ge 300 ]; then
+            echo "❌ llm.store publish failed with HTTP $HTTP_STATUS"
+            exit 1
+          fi
+          echo "✅ Successfully published to llm.store"

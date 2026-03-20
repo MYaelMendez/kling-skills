@@ -1,0 +1,12 @@
+{
+  "multi_shot": true,
+  "shot_type": "customize",
+  "multi_prompt": [
+    { "index": 1, "prompt": "Wide shot: sunrise over mountain peaks", "duration": "5" },
+    { "index": 2, "prompt": "Close-up: dew on a single leaf", "duration": "5" }
+  ],
+  "duration": 10,
+  "mode": "pro",
+  "aspect_ratio": "16:9",
+  "output_dir": "./output"
+}

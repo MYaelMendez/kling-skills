@@ -1,0 +1,8 @@
+{
+  "prompt": "A golden retriever running on a sunlit beach, slow motion, cinematic",
+  "duration": 5,
+  "mode": "pro",
+  "aspect_ratio": "16:9",
+  "sound": "off",
+  "output_dir": "./output"
+}
