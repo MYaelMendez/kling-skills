@@ -1,0 +1,8 @@
+{
+  "image": "./examples/first_frame.jpg",
+  "prompt": "Wind gently blowing through her hair, eyes slowly opening",
+  "duration": 5,
+  "mode": "pro",
+  "sound": "off",
+  "output_dir": "./output"
+}

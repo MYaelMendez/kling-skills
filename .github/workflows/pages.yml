@@ -1,0 +1,42 @@
+name: GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_run:
+    workflows: [Release]
+    types: [completed]
+
+permissions:
+  contents: write
+
+jobs:
+  deploy-pages:
+    name: Build & Deploy to gh-pages
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: npm
+          cache-dependency-path: klingai-video/package-lock.json
+
+      - name: Install dependencies
+        working-directory: klingai-video
+        run: npm ci --prefer-offline || npm install
+
+      - name: Generate docs
+        working-directory: klingai-video
+        run: npm run build
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./klingai-video/docs
+          publish_branch: gh-pages
+          commit_message: 'docs: deploy ${{ github.sha }}'

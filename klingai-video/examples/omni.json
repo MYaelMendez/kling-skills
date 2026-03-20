@@ -1,0 +1,9 @@
+{
+  "prompt": "<<<element_1>>> walking confidently through a neon-lit cityscape at night",
+  "image": "./examples/scene.jpg",
+  "element_ids": "123456",
+  "duration": 5,
+  "mode": "pro",
+  "aspect_ratio": "16:9",
+  "output_dir": "./output"
+}
